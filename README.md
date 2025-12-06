@@ -1,5 +1,7 @@
 # giphRs
 
+[Screen_recording_20251205_203748.webm](https://github.com/user-attachments/assets/3ea93f1b-3cd7-4cd9-95ed-5081b411d94c)
+
 giphRs is an application to demonstrate a native cross platform reactive app architecture in rust.
 It is currently only proof of concept for the UI architecture. It happens to also be a GIPHY client.
 
