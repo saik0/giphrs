@@ -5,7 +5,7 @@
 giphRs is an application to demonstrate a native cross platform reactive app architecture in rust.
 It is currently only proof of concept for the UI architecture. It happens to also be a GIPHY client.
 
-The project of consists of the following
+The project consists of the following
 
 - Core Library
   - libgiphrs: Where all the application's behavior lives
@@ -130,6 +130,3 @@ If you've tried building the Rust library already and you have rustup,
 the requisite targets will probably be installed automatically.
 If not, follow the steps in the [`cargo-ndk` README](https://github.com/bbqsrc/cargo-ndk)
 to install the required Android targets.
-
-Just open up the `android` project in Android Studio and you're good to go.
-It took forever to get the tooling right, but now that it's there, it just works.
