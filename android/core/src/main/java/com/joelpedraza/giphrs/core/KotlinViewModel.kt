@@ -7,14 +7,26 @@ import kotlinx.coroutines.launch
 import uniffi.giphrs.RustViewModel
 
 class KotlinViewModel private constructor(private val nativeViewModel: RustViewModel) :
-  ViewModel(nativeViewModel) {
+    ViewModel(nativeViewModel) {
   constructor() : this(RustViewModel())
 
-  val previews get() = nativeViewModel.getItems()
-  val isLoading get() = nativeViewModel.isLoading()
+  val previews
+    get() = nativeViewModel.getItems()
 
-  val previewsFlow get() = signalOn(Main) { nativeViewModel.pollItems() }
-  val isLoadingFlow get() = signalOn(Main) { nativeViewModel.pollLoading() }
+  val isLoading
+    get() = nativeViewModel.isLoading()
+
+  val hasError
+    get() = nativeViewModel.hasError()
+
+  val previewsFlow
+    get() = signalOn(Main) { nativeViewModel.pollItems() }
+
+  val isLoadingFlow
+    get() = signalOn(Main) { nativeViewModel.pollLoading() }
+
+  val hasErrorFlow
+    get() = signalOn(Main) { nativeViewModel.pollError() }
 
   init {
     refresh()
@@ -26,5 +38,9 @@ class KotlinViewModel private constructor(private val nativeViewModel: RustViewM
 
   fun onSeen(id: String) {
     viewModelScope.launch(Main) { nativeViewModel.onItemSeen(id) }
+  }
+
+  fun requestNextPage() {
+    viewModelScope.launch(Main) { nativeViewModel.requestNextPage() }
   }
 }

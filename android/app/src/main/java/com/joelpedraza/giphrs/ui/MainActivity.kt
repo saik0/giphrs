@@ -25,69 +25,72 @@ import androidx.compose.ui.text.font.FontWeight
 import com.joelpedraza.giphrs.R
 import com.joelpedraza.giphrs.core.KotlinViewModel
 import com.joelpedraza.giphrs.ui.theme.GiphyTheme
-import com.joelpedraza.giphrs.ui.view.PreviewWebpGridView
+import com.joelpedraza.giphrs.ui.view.MainStateFlipper
 
 class MainActivity : ComponentActivity() {
-  private val viewModel by viewModels<KotlinViewModel>()
+    private val viewModel by viewModels<KotlinViewModel>()
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
+        setContent {
+            GiphyTheme {
+                val items = viewModel.previewsFlow.collectAsState(viewModel.previews)
+                val isLoading = viewModel.isLoadingFlow.collectAsState(viewModel.isLoading)
+                val hasError = viewModel.hasErrorFlow.collectAsState(viewModel.hasError)
 
-    setContent {
-      GiphyTheme {
-        val items = viewModel.previewsFlow.collectAsState(viewModel.previews)
-        val isLoading = viewModel.isLoadingFlow.collectAsState(viewModel.isLoading)
+                val topAppBarScrollBehavior =
+                    TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-        val topAppBarScrollBehavior =
-          TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
-        Scaffold(
-          topBar = {
-            TopAppBar(
-              title = {
-                Text(
-                  text = stringResource(R.string.app_name),
-                  color = MaterialTheme.colorScheme.onPrimary,
-                  fontWeight = FontWeight.Black
-                )
-              },
-              colors = TopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                subtitleContentColor = MaterialTheme.colorScheme.onPrimary
-              ),
-              scrollBehavior = topAppBarScrollBehavior,
-            )
-          },
-          modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-        ) { innerPadding ->
-
-
-
-          PullToRefreshBox(
-            isRefreshing = isLoading.value,
-            onRefresh = { viewModel.refresh() },
-            modifier = Modifier
-              .padding(innerPadding)
-              .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-            content = {
-              PreviewWebpGridView(
-                previews = items.value,
-                modifier = Modifier
-                  .fillMaxSize()
-                  .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                onSeen = { id -> viewModel.onSeen(id) }
-              )
-            },
-          )
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = stringResource(R.string.app_name),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontWeight = FontWeight.Black
+                                )
+                            },
+                            colors =
+                                TopAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                                    subtitleContentColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                            scrollBehavior = topAppBarScrollBehavior,
+                        )
+                    },
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                ) { innerPadding ->
+                    PullToRefreshBox(
+                        isRefreshing = isLoading.value,
+                        onRefresh = { viewModel.refresh() },
+                        modifier =
+                            Modifier
+                                .padding(innerPadding)
+                                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                        content = {
+                            MainStateFlipper(
+                                previews = items.value,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                                hasError = hasError.value,
+                                onSeen = { id -> viewModel.onSeen(id) },
+                                onForcePageRequest = { viewModel.requestNextPage() }
+                            )
+                        },
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }

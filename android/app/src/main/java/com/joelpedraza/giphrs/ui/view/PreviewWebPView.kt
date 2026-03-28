@@ -16,20 +16,21 @@ import uniffi.giphrs.PreviewWebP
 
 @Composable
 fun PreviewWebPView(gif: PreviewWebP, onSeen: (String) -> Unit) {
-  val context = LocalContext.current
-  val intent = Intent(context, MainActivity::class.java)
-  val onClick: () -> Unit = {
-    context.startActivity(intent)
-  }
-  AsyncImage(
-    model = gif.url,
-    contentDescription = gif.altText,
-    modifier = Modifier.Companion
-      .aspectRatio(ratio = gif.aspectRatio ?: 1f)
-      .fillMaxWidth().clip(RoundedCornerShape(4.dp))
-      .clickable(
-        onClick = onClick
-      ),
-    onSuccess = { _ -> onSeen(gif.id) },
-  )
+    val context = LocalContext.current
+    val intent = Intent(context, MainActivity::class.java)
+    val onClick: () -> Unit = {
+        context.startActivity(intent)
+    }
+    AsyncImage(
+        model = gif.url,
+        contentDescription = gif.altText,
+        modifier = Modifier
+            .aspectRatio(ratio = gif.aspectRatio ?: 1f)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(4.dp))
+            .clickable(
+                onClick = onClick
+            ),
+        onSuccess = { _ -> onSeen(gif.id) },
+    )
 }
