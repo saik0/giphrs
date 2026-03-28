@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -30,7 +31,6 @@ fun PreviewWebPView(gif: PreviewWebP, onSeen: (String) -> Unit) {
             .clip(RoundedCornerShape(4.dp))
             .clickable(
                 onClick = onClick
-            ),
-        onSuccess = { _ -> onSeen(gif.id) },
+            ).onFirstVisible { onSeen(gif.id) },
     )
 }

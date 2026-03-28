@@ -34,7 +34,8 @@ fun PreviewWebpGridView(
             items = previews,
             key = { gif -> gif.id },
             contentType = { "preview" },
-            itemContent = { gif -> PreviewWebPView(gif, onSeen) })
+            itemContent = { gif -> PreviewWebPView(gif, onSeen) }
+        )
         if (hasError) {
             item(span = StaggeredGridItemSpan.FullLine, contentType = "error") {
                 PaginationError(
