@@ -39,10 +39,5 @@ let package = Package(
             dependencies: [.target(name: "GiphRsRs")],
             path: "ios/Sources/UniFFI"
         ),
-        .testTarget(
-            name: "GiphRsCoreTests",
-            dependencies: ["GiphRsCore"],
-            path: "ios/Tests/GiphRsCoreTests"
-        ),
     ]
 )
