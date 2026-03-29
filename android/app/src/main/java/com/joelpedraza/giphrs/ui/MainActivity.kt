@@ -3,6 +3,7 @@
 package com.joelpedraza.giphrs.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,11 +18,13 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joelpedraza.giphrs.R
 import com.joelpedraza.giphrs.core.KotlinViewModel
 import com.joelpedraza.giphrs.ui.theme.GiphyTheme
@@ -35,9 +38,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GiphyTheme {
-                val items = viewModel.previewsFlow.collectAsState(viewModel.previews)
-                val isLoading = viewModel.isLoadingFlow.collectAsState(viewModel.isLoading)
-                val hasError = viewModel.hasErrorFlow.collectAsState(viewModel.hasError)
+                val items = viewModel.previewsFlow.collectAsStateWithLifecycle()
+                val isLoading = viewModel.isLoadingFlow.collectAsStateWithLifecycle()
+                val hasError = viewModel.hasErrorFlow.collectAsStateWithLifecycle()
 
                 val topAppBarScrollBehavior =
                     TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -65,24 +68,18 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                        Modifier.fillMaxSize(),
                 ) { innerPadding ->
                     PullToRefreshBox(
                         isRefreshing = isLoading.value,
                         onRefresh = { viewModel.refresh() },
                         modifier =
                             Modifier
-                                .padding(innerPadding)
-                                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                                .padding(innerPadding),
                         content = {
                             MainStateFlipper(
                                 previews = items.value,
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                                modifier = Modifier.fillMaxSize(),
                                 hasError = hasError.value,
                                 onSeen = { id -> viewModel.onSeen(id) },
                                 onForcePageRequest = { viewModel.requestNextPage() }
