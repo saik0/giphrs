@@ -65,13 +65,14 @@ where
         match response {
             Ok(value) => {
                 let next_offset = value.next_offset();
-                *self.items.lock_mut() = value.into_items();
+                self.items.set(value.into_items());
                 self.offset.set(next_offset);
                 self.error.set_if(false, |had_error, _| *had_error);
             }
             Err(error) => {
                 error!("an error ocurred while (re)loading {:?}", error);
                 self.error.set_if(true, |had_error, _| !*had_error);
+                self.items.set(vec![]);
             }
         }
 
