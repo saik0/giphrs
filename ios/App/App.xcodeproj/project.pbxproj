@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		961DE2152EDCA06D00B351F5 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 961DE2142EDCA06D00B351F5 /* SDWebImageSwiftUI */; };
+		961DE21B2EDCA81100B351F5 /* SDWebImageWebPCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 961DE21A2EDCA81100B351F5 /* SDWebImageWebPCoder */; };
 		96802FB12EE3D8750072E041 /* GiphRsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 96802FB02EE3D8750072E041 /* GiphRsCore */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +30,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				96802FB12EE3D8750072E041 /* GiphRsCore in Frameworks */,
+				961DE2152EDCA06D00B351F5 /* SDWebImageSwiftUI in Frameworks */,
+				961DE21B2EDCA81100B351F5 /* SDWebImageWebPCoder in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +82,8 @@
 			);
 			name = App;
 			packageProductDependencies = (
+				961DE2142EDCA06D00B351F5 /* SDWebImageSwiftUI */,
+				961DE21A2EDCA81100B351F5 /* SDWebImageWebPCoder */,
 				96802FB02EE3D8750072E041 /* GiphRsCore */,
 			);
 			productName = App;
@@ -109,6 +115,8 @@
 			mainGroup = 96B76F582E98A9AB00EEEDA4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				961DE2132EDCA06D00B351F5 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				961DE2192EDCA81100B351F5 /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */,
 				96802FAF2EE3D8750072E041 /* XCLocalSwiftPackageReference "../../../giphrs" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -268,7 +276,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S95ZQQ9U2H;
+				DEVELOPMENT_TEAM = 827LSB472G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -281,7 +289,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cocoateria.giphrs;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joelpedraza.App;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -300,7 +308,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S95ZQQ9U2H;
+				DEVELOPMENT_TEAM = 827LSB472G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -313,7 +321,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cocoateria.giphrs;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joelpedraza.App;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -355,7 +363,36 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		961DE2132EDCA06D00B351F5 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
+		961DE2192EDCA81100B351F5 /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageWebPCoder.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		961DE2142EDCA06D00B351F5 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 961DE2132EDCA06D00B351F5 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
+		961DE21A2EDCA81100B351F5 /* SDWebImageWebPCoder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 961DE2192EDCA81100B351F5 /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */;
+			productName = SDWebImageWebPCoder;
+		};
 		96802FB02EE3D8750072E041 /* GiphRsCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 96802FAF2EE3D8750072E041 /* XCLocalSwiftPackageReference "../../../giphrs" */;

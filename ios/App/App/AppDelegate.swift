@@ -6,11 +6,13 @@
 //
 import GiphRsCore
 import UniFFI
-import UIKit
+import SDWebImage
+import SDWebImageWebPCoder
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         UniFFI.initialize()
+        SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
         return true
     }
 }
