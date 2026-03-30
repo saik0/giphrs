@@ -5,17 +5,10 @@
 //  Created by saik0 on 12/1/25.
 //
 
-
-import AVKit
 import SwiftUI
 import GiphRsCore
 import UniFFI
 import Foundation
-import Observation
-import Combine
-import _Concurrency
-import SDWebImage
-import SDWebImageSwiftUI
 
 struct PreviewWebPView: View {
     private let preview: PreviewWebP
@@ -27,9 +20,14 @@ struct PreviewWebPView: View {
     }
     
     var body: some View {
-        AnimatedImage(url: URL(string: preview.url).unsafelyUnwrapped)
-            .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fill)
-            .accessibilityLabel(preview.altText)
-            .onAppear(perform: {on_seen(preview.id)})
+        if let url = URL(string: preview.url) {
+            WebImageView(url: url, aspectRatio: CGFloat(preview.aspectRatio ?? 1.0))
+                .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fill)
+                .accessibilityLabel(preview.altText)
+                .onAppear(perform: {on_seen(preview.id)})
+        } else {
+            Color.gray
+                .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fill)
+        }
     }
 }

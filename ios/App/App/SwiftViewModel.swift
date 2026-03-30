@@ -5,17 +5,11 @@
 //  Created by saik0 on 12/1/25.
 //
 
-
-import AVKit
 import SwiftUI
 import GiphRsCore
 import UniFFI
 import Foundation
-import Observation
 import Combine
-import _Concurrency
-import SDWebImage
-import SDWebImageSwiftUI
 
 @MainActor class SwiftViewModel : ObservableObject {
     private let nativeViewModel = RustViewModel()
