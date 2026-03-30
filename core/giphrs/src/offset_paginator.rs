@@ -1,6 +1,6 @@
 use crate::api_model::{Gif, GifListResponse};
 use futures_signals::signal::{Mutable, MutableSignal, MutableSignalCloned};
-use log::error;
+use log::{debug, error};
 use std::future::Future;
 use std::marker::PhantomData;
 
@@ -25,6 +25,7 @@ where
     P: Page<T>,
 {
     is_loading: Mutable<bool>,
+    error: Mutable<bool>,
     items: Mutable<Vec<T>>,
     offset: Mutable<u32>,
     phantom_data: PhantomData<P>,
@@ -38,6 +39,7 @@ where
     pub fn new() -> Self {
         OffsetPager {
             is_loading: Mutable::new(false),
+            error: Mutable::new(false),
             items: Mutable::new(Vec::new()),
             offset: Mutable::new(0),
             phantom_data: PhantomData,
@@ -63,22 +65,30 @@ where
         match response {
             Ok(value) => {
                 let next_offset = value.next_offset();
-                *self.items.lock_mut() = value.into_items();
+                self.items.set(value.into_items());
                 self.offset.set(next_offset);
+                self.error.set_if(false, |had_error, _| *had_error);
             }
             Err(error) => {
-                error!("unhandled pagination error: {:?}", error);
+                error!("an error ocurred while (re)loading {:?}", error);
+                self.error.set_if(true, |had_error, _| !*had_error);
+                self.items.set(vec![]);
             }
         }
 
         self.is_loading.set(false)
     }
 
-    pub async fn try_load_more<F, G>(&self, f: F)
+    pub async fn try_load_more<F, G>(&self, ignore_error: bool, f: F)
     where
         F: Fn(Offset) -> G,
         G: Future<Output = reqwest::Result<P>>,
     {
+        if !ignore_error && self.error.get() {
+            debug!("Refusing next page load while in error state");
+            return;
+        }
+
         {
             let mut guard = self.is_loading.lock_mut();
             if *guard {
@@ -96,9 +106,11 @@ where
                 let next_offset = value.next_offset();
                 self.items.lock_mut().extend(value.into_items());
                 self.offset.set(next_offset);
+                self.error.set_if(false, |had_error, _| *had_error);
             }
             Err(error) => {
-                error!("unhandled pagination error: {:?}", error);
+                error!("an error ocurred while paging {:?}", error);
+                self.error.set_if(true, |had_error, _| !*had_error);
             }
         }
 
@@ -119,5 +131,10 @@ where
         self.is_loading.signal()
     }
 
-
+    pub fn error(&self) -> bool {
+        self.error.get()
+    }
+    pub fn error_signal(&self) -> MutableSignal<bool> {
+        self.error.signal()
+    }
 }

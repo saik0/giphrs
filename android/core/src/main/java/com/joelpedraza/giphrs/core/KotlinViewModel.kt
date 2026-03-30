@@ -2,29 +2,36 @@ package com.joelpedraza.giphrs.core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import uniffi.giphrs.RustViewModel
 
 class KotlinViewModel private constructor(private val nativeViewModel: RustViewModel) :
-  ViewModel(nativeViewModel) {
-  constructor() : this(RustViewModel())
+    ViewModel(nativeViewModel) {
+    constructor() : this(RustViewModel())
 
-  val previews get() = nativeViewModel.getItems()
-  val isLoading get() = nativeViewModel.isLoading()
+    val previewsFlow =
+        signalAsStateFlow(nativeViewModel.getItems()) { nativeViewModel.pollItems() }
 
-  val previewsFlow get() = signalOn(Main) { nativeViewModel.pollItems() }
-  val isLoadingFlow get() = signalOn(Main) { nativeViewModel.pollLoading() }
+    val isLoadingFlow =
+        signalAsStateFlow(nativeViewModel.isLoading()) { nativeViewModel.pollLoading() }
 
-  init {
-    refresh()
-  }
+    val hasErrorFlow =
+        signalAsStateFlow(nativeViewModel.hasError()) { nativeViewModel.pollError() }
 
-  fun refresh() {
-    viewModelScope.launch(Main) { nativeViewModel.refresh() }
-  }
+    init {
+        refresh()
+    }
 
-  fun onSeen(id: String) {
-    viewModelScope.launch(Main) { nativeViewModel.onItemSeen(id) }
-  }
+    fun refresh() {
+        viewModelScope.launch(Dispatchers.Default) { nativeViewModel.refresh() }
+    }
+
+    fun onSeen(id: String) {
+        viewModelScope.launch(Dispatchers.Default) { nativeViewModel.onItemSeen(id) }
+    }
+
+    fun requestNextPage() {
+        viewModelScope.launch(Dispatchers.Default) { nativeViewModel.requestNextPage() }
+    }
 }

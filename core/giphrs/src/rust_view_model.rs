@@ -16,6 +16,7 @@ pub struct RustViewModel {
     paginator: OffsetPager<Gif, GifListResponse>,
     previews: BroadcastSignal<Previews>,
     loading: BroadcastSignal<bool>,
+    error: BroadcastSignal<bool>,
 }
 
 #[uniffi::export]
@@ -26,19 +27,18 @@ impl RustViewModel {
 
         let paginator = OffsetPager::new();
 
-        let previews = BroadcastSignal::new(
-            paginator.items_signal_cloned().map(into_previews)
-        );
+        let previews = BroadcastSignal::new(paginator.items_signal_cloned().map(into_previews));
 
-        let loading = BroadcastSignal::new(
-            paginator.is_loading_signal()
-        );
+        let loading = BroadcastSignal::new(paginator.is_loading_signal());
+
+        let error = BroadcastSignal::new(paginator.error_signal());
 
         let vm = RustViewModel {
             api_client,
             paginator,
             previews,
             loading,
+            error,
         };
 
         Arc::new(vm)
@@ -52,12 +52,20 @@ impl RustViewModel {
         self.paginator.is_loading()
     }
 
+    pub fn has_error(&self) -> bool {
+        self.paginator.error()
+    }
+
     pub async fn poll_items(&self) -> Option<Vec<PreviewWebP>> {
         self.previews.recv().await
     }
 
     pub async fn poll_loading(&self) -> Option<bool> {
         self.loading.recv().await
+    }
+
+    pub async fn poll_error(&self) -> Option<bool> {
+        self.error.recv().await
     }
 
     pub async fn refresh(&self) {
@@ -73,14 +81,22 @@ impl RustViewModel {
             if i >= gifs.len() - 4 {
                 debug!("loading next page");
                 self.paginator
-                    .try_load_more(
-                        |offset| async move { self.api_client.get_trending(offset).await },
-                    )
+                    .try_load_more(false, |offset| async move {
+                        self.api_client.get_trending(offset).await
+                    })
                     .await
             }
         } else {
             error!("no gif for id {:?}", id);
         }
+    }
+
+    pub async fn request_next_page(&self) {
+        self.paginator
+            .try_load_more(true, |offset| async move {
+                self.api_client.get_trending(offset).await
+            })
+            .await
     }
 }
 
