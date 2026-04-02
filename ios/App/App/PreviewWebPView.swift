@@ -13,7 +13,6 @@ import UniFFI
 import Foundation
 import Observation
 import Combine
-import _Concurrency
 import SDWebImage
 import SDWebImageSwiftUI
 
@@ -28,7 +27,9 @@ struct PreviewWebPView: View {
     
     var body: some View {
         AnimatedImage(url: URL(string: preview.url).unsafelyUnwrapped)
-            .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fill)
+            .resizable()
+            .scaledToFit()
+            .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fit)
             .accessibilityLabel(preview.altText)
             .onAppear(perform: {on_seen(preview.id)})
     }

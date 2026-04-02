@@ -16,32 +16,35 @@ import _Concurrency
 import SDWebImage
 import SDWebImageSwiftUI
 
-let FIXED_WIDTH_SIZE: CGFloat = 200.0
-let GRID_SPACING: CGFloat = 12
-let MAX_COLS: Int = 4
-
 struct ContentView: View {
     @ObservedObject var viewModel = SwiftViewModel()
     
+    private let fixedWidthSize: CGFloat = 200.0
+    private let gridSpacing: CGFloat = 12
+    private let numCols: Int = 2
+    
     var body: some View {
-        GeometryReader { geometry in
-            let num_cols = min(MAX_COLS, max(1, Int(geometry.size.width / (FIXED_WIDTH_SIZE + GRID_SPACING))))
-            
-            let columns = Array(repeating: GridItem(.flexible(minimum: FIXED_WIDTH_SIZE, maximum: FIXED_WIDTH_SIZE)), count: num_cols)
-            
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: GRID_SPACING) {
-                    ForEach(viewModel.gifs, id: \.id) { preview in
-                        PreviewWebPView(
-                            preview: preview,
-                            on_seen: { viewModel.on_item_seen(id: $0) }
-                        ).frame(width: FIXED_WIDTH_SIZE, height: FIXED_WIDTH_SIZE / CGFloat(preview.aspectRatio ?? 1.0))
-                    }
+        let columns = Array(
+            repeating: GridItem(
+                .adaptive(minimum: fixedWidthSize, maximum: .greatestFiniteMagnitude),
+                spacing: gridSpacing
+            ),
+            count: numCols
+        )
+        
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: gridSpacing) {
+                ForEach(viewModel.gifs, id: \.id) { preview in
+                    PreviewWebPView(
+                        preview: preview,
+                        on_seen: { viewModel.on_item_seen(id: $0) }
+                    )//.frame(width: fixedWidthSize)
+                    // , height: fixedWidthSize / CGFloat(preview.aspectRatio ?? 1.0))
                 }
-                .padding()
-            }.refreshable {
-                viewModel.refresh()
             }
+            .padding()
+        }.refreshable {
+            viewModel.refresh()
         }
     }
     
