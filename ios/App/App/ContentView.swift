@@ -24,23 +24,37 @@ struct ContentView: View {
     private let numCols: Int = 2
     
     var body: some View {
-        let columns = Array(
-            repeating: GridItem(
-                .adaptive(minimum: fixedWidthSize, maximum: .greatestFiniteMagnitude),
-                spacing: gridSpacing
-            ),
-            count: numCols
-        )
+        // Split gifs into two columns (alternating distribution)
+        let leftColumnGifs = stride(from: 0, to: viewModel.gifs.count, by: 2).map { viewModel.gifs[$0] }
+        let rightColumnGifs = stride(from: 1, to: viewModel.gifs.count, by: 2).map { viewModel.gifs[$0] }
         
         ScrollView {
-            LazyVGrid(columns: columns, spacing: gridSpacing) {
-                ForEach(viewModel.gifs, id: \.id) { preview in
-                    PreviewWebPView(
-                        preview: preview,
-                        on_seen: { viewModel.on_item_seen(id: $0) }
-                    )//.frame(width: fixedWidthSize)
-                    // , height: fixedWidthSize / CGFloat(preview.aspectRatio ?? 1.0))
+            HStack(alignment: .top, spacing: gridSpacing) {
+                // Left column
+                LazyVStack(spacing: gridSpacing) {
+                    ForEach(leftColumnGifs, id: \.id) { preview in
+                        PreviewWebPView(
+                            preview: preview,
+                            on_seen: { viewModel.on_item_seen(id: $0) }
+                        )
+                        .frame(width: fixedWidthSize)
+                        .clipped()
+                    }
                 }
+                .frame(width: fixedWidthSize)
+                
+                // Right column
+                LazyVStack(spacing: gridSpacing) {
+                    ForEach(rightColumnGifs, id: \.id) { preview in
+                        PreviewWebPView(
+                            preview: preview,
+                            on_seen: { viewModel.on_item_seen(id: $0) }
+                        )
+                        .frame(width: fixedWidthSize)
+                        .clipped()
+                    }
+                }
+                .frame(width: fixedWidthSize)
             }
             .padding()
         }.refreshable {
