@@ -30,15 +30,17 @@ struct ContentView: View {
         var rightHeight: CGFloat = 0
         
         for gif in gifs {
-            let aspectRatio = CGFloat(gif.aspectRatio ?? 1.0)
-            let itemHeight = columnWidth / aspectRatio + gridSpacing
+            // Validate and clamp aspect ratio to reasonable bounds
+            let aspectRatio = max(0.1, min(10.0, CGFloat(gif.aspectRatio ?? 1.0)))
+            let itemHeight = columnWidth / aspectRatio
             
+            // Add to shorter column
             if leftHeight <= rightHeight {
                 leftColumn.append(gif)
-                leftHeight += itemHeight
+                leftHeight += itemHeight + (leftColumn.count > 1 ? gridSpacing : 0)
             } else {
                 rightColumn.append(gif)
-                rightHeight += itemHeight
+                rightHeight += itemHeight + (rightColumn.count > 1 ? gridSpacing : 0)
             }
         }
         
