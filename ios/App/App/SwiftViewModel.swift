@@ -29,7 +29,11 @@ import SDWebImageSwiftUI
         Task {
             while !Task.isCancelled {
                 guard let gifs = await nativeViewModel.pollItems() else { break }
+//                guard self.gifs != gifs else { break }
                 self.gifs = gifs
+                
+                //  - 0 : "3hIMJ6iFK2omLMh5Nz"
+                //   - 49 : "udmx3pgdiD7tm"
             }
         }
         

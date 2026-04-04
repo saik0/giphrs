@@ -23,10 +23,31 @@ struct ContentView: View {
     private let gridSpacing: CGFloat = 12
     private let numCols: Int = 2
     
+    private func balanceColumns(gifs: [PreviewWebP], columnWidth: CGFloat) -> ([PreviewWebP], [PreviewWebP]) {
+        var leftColumn: [PreviewWebP] = []
+        var rightColumn: [PreviewWebP] = []
+        var leftHeight: CGFloat = 0
+        var rightHeight: CGFloat = 0
+        
+        for gif in gifs {
+            let aspectRatio = CGFloat(gif.aspectRatio ?? 1.0)
+            let itemHeight = columnWidth / aspectRatio + gridSpacing
+            
+            if leftHeight <= rightHeight {
+                leftColumn.append(gif)
+                leftHeight += itemHeight
+            } else {
+                rightColumn.append(gif)
+                rightHeight += itemHeight
+            }
+        }
+        
+        return (leftColumn, rightColumn)
+    }
+    
     var body: some View {
-        // Split gifs into two columns (alternating distribution)
-        let leftColumnGifs = stride(from: 0, to: viewModel.gifs.count, by: 2).map { viewModel.gifs[$0] }
-        let rightColumnGifs = stride(from: 1, to: viewModel.gifs.count, by: 2).map { viewModel.gifs[$0] }
+        // Split gifs into two columns (balanced distribution by height)
+        let (leftColumnGifs, rightColumnGifs) = balanceColumns(gifs: viewModel.gifs, columnWidth: fixedWidthSize)
         
         ScrollView {
             HStack(alignment: .top, spacing: gridSpacing) {
@@ -35,7 +56,7 @@ struct ContentView: View {
                     ForEach(leftColumnGifs, id: \.id) { preview in
                         PreviewWebPView(
                             preview: preview,
-                            on_seen: { viewModel.on_item_seen(id: $0) }
+                            onSeen: { viewModel.on_item_seen(id: $0) }
                         )
                         .frame(width: fixedWidthSize)
                         .clipped()
@@ -48,7 +69,7 @@ struct ContentView: View {
                     ForEach(rightColumnGifs, id: \.id) { preview in
                         PreviewWebPView(
                             preview: preview,
-                            on_seen: { viewModel.on_item_seen(id: $0) }
+                            onSeen: { viewModel.on_item_seen(id: $0) }
                         )
                         .frame(width: fixedWidthSize)
                         .clipped()

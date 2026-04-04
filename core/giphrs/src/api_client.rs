@@ -26,13 +26,16 @@ impl ApiClient {
             .query(&[("api_key", API_KEY), ("offset", &offset.to_string())])
             .send();
 
-        get_runtime().spawn(async {
-            trace!("begin get in rust");
-            let response = future.await?;
-            debug!("headers: {:?}", &response);
-            let parsed = response.json::<GifListResponse>().await;
-            debug!("body: {:?}", &parsed);
-            parsed
-        }).await.expect("task panicked")
+        get_runtime()
+            .spawn(async {
+                trace!("begin get in rust");
+                let response = future.await?;
+                debug!("headers: {:?}", &response);
+                let parsed = response.json::<GifListResponse>().await;
+                debug!("body: {:?}", &parsed);
+                parsed
+            })
+            .await
+            .expect("task panicked")
     }
 }
