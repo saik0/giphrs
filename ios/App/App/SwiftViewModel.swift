@@ -53,7 +53,7 @@ import SDWebImageSwiftUI
         }
     }
     
-    func on_item_seen(id: String) {
+    func onItemSeen(id: String) {
         Task {
             await nativeViewModel.onItemSeen(id: id)
         }
