@@ -16,35 +16,14 @@ import _Concurrency
 import SDWebImage
 import SDWebImageSwiftUI
 
-struct ContentView: View {
-    @ObservedObject var viewModel = SwiftViewModel()
+struct ContentView<ViewModel: ViewModelProtocol>: View {
+    @ObservedObject var viewModel: ViewModel
     
     private let fixedWidthSize: CGFloat = 200.0
     private let gridSpacing: CGFloat = 12
-    private let numCols: Int = 2
     
-    private func balanceColumns(gifs: [PreviewWebP], columnWidth: CGFloat) -> ([PreviewWebP], [PreviewWebP]) {
-        var leftColumn: [PreviewWebP] = []
-        var rightColumn: [PreviewWebP] = []
-        var leftHeight: CGFloat = 0
-        var rightHeight: CGFloat = 0
-        
-        for gif in gifs {
-            // Validate and clamp aspect ratio to reasonable bounds
-            let aspectRatio = max(0.1, min(10.0, CGFloat(gif.aspectRatio ?? 1.0)))
-            let itemHeight = columnWidth / aspectRatio
-            
-            // Add to shorter column
-            if leftHeight <= rightHeight {
-                leftColumn.append(gif)
-                leftHeight += itemHeight + (leftColumn.count > 1 ? gridSpacing : 0)
-            } else {
-                rightColumn.append(gif)
-                rightHeight += itemHeight + (rightColumn.count > 1 ? gridSpacing : 0)
-            }
-        }
-        
-        return (leftColumn, rightColumn)
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
     }
     
     var body: some View {
@@ -55,54 +34,18 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             case .loaded(let gifs):
-                // Split gifs into two columns (balanced distribution by height)
-                let (leftColumnGifs, rightColumnGifs) = balanceColumns(gifs: gifs, columnWidth: fixedWidthSize)
-                
-                ScrollView {
-                    HStack(alignment: .top, spacing: gridSpacing) {
-                        // Left column
-                        LazyVStack(spacing: gridSpacing) {
-                            ForEach(leftColumnGifs, id: \.id) { preview in
-                                PreviewWebPView(
-                                    preview: preview,
-                                    onSeen: { viewModel.onSeen(id: $0) }
-                                )
-                                .frame(width: fixedWidthSize)
-                                .clipped()
-                            }
-                        }
-                        .frame(width: fixedWidthSize)
-                        
-                        // Right column
-                        LazyVStack(spacing: gridSpacing) {
-                            ForEach(rightColumnGifs, id: \.id) { preview in
-                                PreviewWebPView(
-                                    preview: preview,
-                                    onSeen: { viewModel.onSeen(id: $0) }
-                                )
-                                .frame(width: fixedWidthSize)
-                                .clipped()
-                            }
-                        }
-                        .frame(width: fixedWidthSize)
-                    }
-                    .padding()
-                }
+                GifGridView(
+                    gifs: gifs,
+                    columnWidth: fixedWidthSize,
+                    spacing: gridSpacing,
+                    onSeen: viewModel.onSeen
+                )
                 .refreshable {
                     viewModel.refresh()
                 }
                 
             case .error(let error):
-                VStack(spacing: 16) {
-                    Text("Error")
-                        .font(.headline)
-                    Text(error.localizedDescription)
-                        .foregroundColor(.secondary)
-                    Button("Retry") {
-                        viewModel.refresh()
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                ErrorView(error: error, onRetry: viewModel.refresh)
             }
         }
         .onAppear {
@@ -113,3 +56,40 @@ struct ContentView: View {
 }
 
 extension PreviewWebP: @retroactive Identifiable {}
+
+// MARK: - Previews
+
+#Preview("Loading State") {
+    ContentView(viewModel: MockViewModel(state: .loading))
+}
+
+#Preview("Loaded State") {
+    let mockGifs = [
+        PreviewWebP(id: "1", altText: "Cat GIF", url: "https://media.giphy.com/media/placeholder1/giphy.gif", aspectRatio: 1.0),
+        PreviewWebP(id: "2", altText: "Dog GIF", url: "https://media.giphy.com/media/placeholder2/giphy.gif", aspectRatio: 1.5),
+        PreviewWebP(id: "3", altText: "Bird GIF", url: "https://media.giphy.com/media/placeholder3/giphy.gif", aspectRatio: 0.75),
+        PreviewWebP(id: "4", altText: "Fish GIF", url: "https://media.giphy.com/media/placeholder4/giphy.gif", aspectRatio: 1.2),
+    ]
+    ContentView(viewModel: MockViewModel(state: .loaded(mockGifs)))
+}
+
+#Preview("Error State") {
+    let error = NSError(domain: "PreviewError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to load GIFs. Please try again."])
+    ContentView(viewModel: MockViewModel(state: .error(error)))
+}
+
+// MARK: - Mock ViewModel for Previews
+
+@MainActor
+class MockViewModel: ViewModelProtocol {
+    @Published var state: SwiftViewModel.State
+    
+    init(state: SwiftViewModel.State) {
+        self.state = state
+    }
+    
+    func start() {}
+    func refresh() {}
+    func onSeen(id: String) {}
+}
+
