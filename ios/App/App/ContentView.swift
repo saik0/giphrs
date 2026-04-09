@@ -5,16 +5,9 @@
 //  Created by saik0 on 10/9/25.
 //
 
-import AVKit
 import SwiftUI
 import GiphRsCore
-import UniFFI
-import Foundation
-import Observation
 import Combine
-import _Concurrency
-import SDWebImage
-import SDWebImageSwiftUI
 
 struct ContentView<ViewModel: ViewModelProtocol>: View {
     @ObservedObject var viewModel: ViewModel
@@ -38,7 +31,8 @@ struct ContentView<ViewModel: ViewModelProtocol>: View {
                     gifs: gifs,
                     columnWidth: fixedWidthSize,
                     spacing: gridSpacing,
-                    onSeen: viewModel.onSeen
+                    onSeen: viewModel.onSeen,
+                    onRequestNextPage: viewModel.requestNextPage
                 )
                 .refreshable {
                     viewModel.refresh()
@@ -52,7 +46,6 @@ struct ContentView<ViewModel: ViewModelProtocol>: View {
             viewModel.start()
         }
     }
-    
 }
 
 extension PreviewWebP: @retroactive Identifiable {}
@@ -81,7 +74,8 @@ extension PreviewWebP: @retroactive Identifiable {}
 // MARK: - Mock ViewModel for Previews
 
 @MainActor
-class MockViewModel: ViewModelProtocol {
+class MockViewModel: ViewModelProtocol, ObservableObject {
+    
     @Published var state: SwiftViewModel.State
     
     init(state: SwiftViewModel.State) {
@@ -91,5 +85,6 @@ class MockViewModel: ViewModelProtocol {
     func start() {}
     func refresh() {}
     func onSeen(id: String) {}
+    func requestNextPage() {}
 }
 

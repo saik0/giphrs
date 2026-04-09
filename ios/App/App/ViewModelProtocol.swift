@@ -12,6 +12,7 @@ protocol ViewModelProtocol: ObservableObject {
     func start()
     func refresh()
     func onSeen(id: String)
+    func requestNextPage()
 }
 
 extension SwiftViewModel: ViewModelProtocol {}

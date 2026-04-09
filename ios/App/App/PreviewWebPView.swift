@@ -6,14 +6,8 @@
 //
 
 
-import AVKit
 import SwiftUI
 import GiphRsCore
-import UniFFI
-import Foundation
-import Observation
-import Combine
-import SDWebImage
 import SDWebImageSwiftUI
 
 struct PreviewWebPView: View {
@@ -26,14 +20,26 @@ struct PreviewWebPView: View {
     }
     
     var body: some View {
-        AnimatedImage(url: URL(string: preview.url).unsafelyUnwrapped) {
-            ShimmerPlaceholder()
+        Group {
+            if let url = URL(string: preview.url) {
+                AnimatedImage(url: url) {
+                    ShimmerPlaceholder()
+                        .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fit)
+                }
+                .resizable()
+                .scaledToFit()
                 .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fit)
+                .accessibilityLabel(preview.altText)
+            } else {
+                ShimmerPlaceholder()
+                    .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fit)
+                    .overlay(
+                        Text("Invalid URL")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    )
+            }
         }
-        .resizable()
-        .scaledToFit()
-        .aspectRatio(CGFloat(preview.aspectRatio ?? 1.0), contentMode: .fit)
-        .accessibilityLabel(preview.altText)
         .onAppear { onSeen(preview.id) }
     }
 }

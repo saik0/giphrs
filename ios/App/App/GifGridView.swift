@@ -13,6 +13,7 @@ struct GifGridView: View {
     let columnWidth: CGFloat
     let spacing: CGFloat
     let onSeen: (String) -> Void
+    let onRequestNextPage: () -> Void
     
     private func balanceColumns(gifs: [PreviewWebP], columnWidth: CGFloat) -> ([PreviewWebP], [PreviewWebP]) {
         var leftColumn: [PreviewWebP] = []
@@ -45,26 +46,38 @@ struct GifGridView: View {
             HStack(alignment: .top, spacing: spacing) {
                 // Left column
                 LazyVStack(spacing: spacing) {
-                    ForEach(leftColumnGifs, id: \.id) { preview in
+                    ForEach(Array(leftColumnGifs.enumerated()), id: \.element.id) { index, preview in
                         PreviewWebPView(
                             preview: preview,
                             onSeen: { onSeen($0) }
                         )
                         .frame(width: columnWidth)
                         .clipped()
+                        .onAppear {
+                            // Request next page when approaching the end (last 3 items)
+                            if index >= leftColumnGifs.count - 3 {
+                                onRequestNextPage()
+                            }
+                        }
                     }
                 }
                 .frame(width: columnWidth)
                 
                 // Right column
                 LazyVStack(spacing: spacing) {
-                    ForEach(rightColumnGifs, id: \.id) { preview in
+                    ForEach(Array(rightColumnGifs.enumerated()), id: \.element.id) { index, preview in
                         PreviewWebPView(
                             preview: preview,
                             onSeen: { onSeen($0) }
                         )
                         .frame(width: columnWidth)
                         .clipped()
+                        .onAppear {
+                            // Request next page when approaching the end (last 3 items)
+                            if index >= rightColumnGifs.count - 3 {
+                                onRequestNextPage()
+                            }
+                        }
                     }
                 }
                 .frame(width: columnWidth)

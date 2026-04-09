@@ -81,8 +81,6 @@ import SDWebImageSwiftUI
             while !Task.isCancelled {
                 guard let hasError = await nativeViewModel.pollError() else { break }
                 if hasError {
-                    // Get the current items to include in error state if needed
-                    let currentGifs = nativeViewModel.getItems()
                     self.state = .error(NSError(domain: "SwiftViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "An error occurred"]))
                 }
             }
