@@ -8,53 +8,30 @@
 import Foundation
 import GiphRsCore
 
-// Extension to convert UniFFI-generated GiphRsError to NSError
 extension GiphRsError {
-    func toNSError() -> NSError {
+    var message: String {
         switch self {
-        case .networkError(let message):
-            return NSError(
-                domain: "com.giphrs.app",
-                code: 1001,
-                userInfo: [
-                    NSLocalizedDescriptionKey: "Network Error",
-                    NSLocalizedFailureReasonErrorKey: message,
-                    NSLocalizedRecoverySuggestionErrorKey: "Please check your internet connection and try again."
-                ]
-            )
-            
-        case .parseError(let details):
-            return NSError(
-                domain: "com.giphrs.app",
-                code: 1002,
-                userInfo: [
-                    NSLocalizedDescriptionKey: "Parse Error",
-                    NSLocalizedFailureReasonErrorKey: details,
-                    NSLocalizedRecoverySuggestionErrorKey: "The response format was unexpected. Please try again later."
-                ]
-            )
-            
-        case .apiError(let code, let message):
-            return NSError(
-                domain: "com.giphrs.app",
-                code: Int(code),
-                userInfo: [
-                    NSLocalizedDescriptionKey: "API Error",
-                    NSLocalizedFailureReasonErrorKey: message,
-                    NSLocalizedRecoverySuggestionErrorKey: "The API returned an error. Please try again later."
-                ]
-            )
-            
-        case .unknown(let message):
-            return NSError(
-                domain: "com.giphrs.app",
-                code: 9999,
-                userInfo: [
-                    NSLocalizedDescriptionKey: "Unknown Error",
-                    NSLocalizedFailureReasonErrorKey: message,
-                    NSLocalizedRecoverySuggestionErrorKey: "An unexpected error occurred. Please try again."
-                ]
-            )
+        case .NetworkError(let message):
+            return message
+        case .ParseError(let message):
+            return message
+        case .ApiError(let message):
+            return message
+        case .Unknown(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .NetworkError:
+            return "Please check your internet connection and try again."
+        case .ParseError:
+            return "The response format was unexpected. Please try again later."
+        case .ApiError:
+            return "The API returned an error. Please try again later."
+        case .Unknown:
+            return "An unexpected error occurred. Please try again."
         }
     }
 }
