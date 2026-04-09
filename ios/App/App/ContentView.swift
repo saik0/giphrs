@@ -58,7 +58,7 @@ struct ContentView: View {
                     ForEach(leftColumnGifs, id: \.id) { preview in
                         PreviewWebPView(
                             preview: preview,
-                            onSeen: { viewModel.onItemSeen(id: $0) }
+                            onSeen: { viewModel.onSeen(id: $0) }
                         )
                         .frame(width: fixedWidthSize)
                         .clipped()
@@ -71,7 +71,7 @@ struct ContentView: View {
                     ForEach(rightColumnGifs, id: \.id) { preview in
                         PreviewWebPView(
                             preview: preview,
-                            onSeen: { viewModel.onItemSeen(id: $0) }
+                            onSeen: { viewModel.onSeen(id: $0) }
                         )
                         .frame(width: fixedWidthSize)
                         .clipped()
@@ -81,7 +81,7 @@ struct ContentView: View {
             }
             .padding()
         }.refreshable {
-            await viewModel.refresh()
+            viewModel.refresh()
         }
     }
     

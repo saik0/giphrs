@@ -17,15 +17,24 @@ import _Concurrency
 import SDWebImage
 import SDWebImageSwiftUI
 
+enum State {
+    case isLoading
+    case loaded([PreviewWebP])
+    case error(_ error: Error)
+}
+
 @MainActor class SwiftViewModel : ObservableObject {
     private let nativeViewModel = RustViewModel()
     @Published var gifs: [PreviewWebP];
     @Published var is_loading: Bool;
+    @Published var has_error: Bool;
+    
+    @Published var state: State = .isLoading
     
     init() {
         self.gifs = nativeViewModel.getItems()
         self.is_loading = nativeViewModel.isLoading()
-        
+        self.has_error = nativeViewModel.hasError()
         Task {
             while !Task.isCancelled {
                 guard let gifs = await nativeViewModel.pollItems() else { break }
@@ -44,6 +53,13 @@ import SDWebImageSwiftUI
             }
         }
         
+        Task {
+            while !Task.isCancelled {
+                guard let has_error = await nativeViewModel.pollError() else { break }
+                self.has_error = has_error
+            }
+        }
+        
         self.refresh()
     }
     
@@ -53,9 +69,15 @@ import SDWebImageSwiftUI
         }
     }
     
-    func onItemSeen(id: String) {
+    func onSeen(id: String) {
         Task {
             await nativeViewModel.onItemSeen(id: id)
+        }
+    }
+    
+    func requestNextPage() {
+        Task {
+            await nativeViewModel.requestNextPage()
         }
     }
 }
