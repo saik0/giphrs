@@ -48,40 +48,65 @@ struct ContentView: View {
     }
     
     var body: some View {
-        // Split gifs into two columns (balanced distribution by height)
-        let (leftColumnGifs, rightColumnGifs) = balanceColumns(gifs: viewModel.gifs, columnWidth: fixedWidthSize)
-        
-        ScrollView {
-            HStack(alignment: .top, spacing: gridSpacing) {
-                // Left column
-                LazyVStack(spacing: gridSpacing) {
-                    ForEach(leftColumnGifs, id: \.id) { preview in
-                        PreviewWebPView(
-                            preview: preview,
-                            onSeen: { viewModel.onSeen(id: $0) }
-                        )
-                        .frame(width: fixedWidthSize)
-                        .clipped()
-                    }
-                }
-                .frame(width: fixedWidthSize)
+        Group {
+            switch viewModel.state {
+            case .loading:
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // Right column
-                LazyVStack(spacing: gridSpacing) {
-                    ForEach(rightColumnGifs, id: \.id) { preview in
-                        PreviewWebPView(
-                            preview: preview,
-                            onSeen: { viewModel.onSeen(id: $0) }
-                        )
+            case .loaded(let gifs):
+                // Split gifs into two columns (balanced distribution by height)
+                let (leftColumnGifs, rightColumnGifs) = balanceColumns(gifs: gifs, columnWidth: fixedWidthSize)
+                
+                ScrollView {
+                    HStack(alignment: .top, spacing: gridSpacing) {
+                        // Left column
+                        LazyVStack(spacing: gridSpacing) {
+                            ForEach(leftColumnGifs, id: \.id) { preview in
+                                PreviewWebPView(
+                                    preview: preview,
+                                    onSeen: { viewModel.onSeen(id: $0) }
+                                )
+                                .frame(width: fixedWidthSize)
+                                .clipped()
+                            }
+                        }
                         .frame(width: fixedWidthSize)
-                        .clipped()
+                        
+                        // Right column
+                        LazyVStack(spacing: gridSpacing) {
+                            ForEach(rightColumnGifs, id: \.id) { preview in
+                                PreviewWebPView(
+                                    preview: preview,
+                                    onSeen: { viewModel.onSeen(id: $0) }
+                                )
+                                .frame(width: fixedWidthSize)
+                                .clipped()
+                            }
+                        }
+                        .frame(width: fixedWidthSize)
+                    }
+                    .padding()
+                }
+                .refreshable {
+                    viewModel.refresh()
+                }
+                
+            case .error(let error):
+                VStack(spacing: 16) {
+                    Text("Error")
+                        .font(.headline)
+                    Text(error.localizedDescription)
+                        .foregroundColor(.secondary)
+                    Button("Retry") {
+                        viewModel.refresh()
                     }
                 }
-                .frame(width: fixedWidthSize)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding()
-        }.refreshable {
-            viewModel.refresh()
+        }
+        .onAppear {
+            viewModel.start()
         }
     }
     
