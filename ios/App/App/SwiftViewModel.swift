@@ -28,7 +28,7 @@ import SDWebImageSwiftUI
 
     private let nativeViewModel = RustViewModel()
     
-    @Published var state: State = .loading
+    @Published var state: State
     
     private var itemsPollingTask: Task<Void, Never>?
     private var loadingPollingTask: Task<Void, Never>?
@@ -39,6 +39,8 @@ import SDWebImageSwiftUI
         let initialGifs = nativeViewModel.getItems()
         if !initialGifs.isEmpty {
             self.state = .loaded(initialGifs)
+        } else {
+            self.state = .loading
         }
     }
     
@@ -63,11 +65,11 @@ import SDWebImageSwiftUI
         // Poll for loading state
         loadingPollingTask = Task {
             while !Task.isCancelled {
-                guard let is_loading = await nativeViewModel.pollLoading() else { break }
-                if is_loading, case .loading = self.state {
+                guard let isLoading = await nativeViewModel.pollLoading() else { break }
+                if isLoading, case .loading = self.state {
                     // Only set loading if we're already in loading state
                     self.state = .loading
-                } else if is_loading, case .error = self.state {
+                } else if isLoading, case .error = self.state {
                     // Transition from error to loading if refreshing
                     self.state = .loading
                 }
@@ -77,8 +79,8 @@ import SDWebImageSwiftUI
         // Poll for error state
         errorPollingTask = Task {
             while !Task.isCancelled {
-                guard let has_error = await nativeViewModel.pollError() else { break }
-                if has_error {
+                guard let hasError = await nativeViewModel.pollError() else { break }
+                if hasError {
                     // Get the current items to include in error state if needed
                     let currentGifs = nativeViewModel.getItems()
                     self.state = .error(NSError(domain: "SwiftViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "An error occurred"]))
