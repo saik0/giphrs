@@ -9,13 +9,13 @@ import SwiftUI
 import GiphRsCore
 import Combine
 
-struct ContentView<VM: ViewModelProtocol>: View {
-    @ObservedObject var viewModel: VM
+struct ContentView<ViewModel: ViewModelProtocol>: View {
+    @ObservedObject var viewModel: ViewModel
     
     private let fixedWidthSize: CGFloat = 200.0
     private let gridSpacing: CGFloat = 12
     
-    init(viewModel: VM) {
+    init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
     
