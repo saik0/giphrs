@@ -1,6 +1,7 @@
 mod api_client;
 mod api_model;
 mod domain_model;
+mod error;
 mod offset_paginator;
 mod rust_view_model;
 mod broadcast_signal;
