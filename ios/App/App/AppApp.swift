@@ -13,7 +13,7 @@ struct AppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(viewModel: SwiftViewModel())
         }
     }
 }
