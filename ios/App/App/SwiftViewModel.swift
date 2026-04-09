@@ -81,7 +81,14 @@ import SDWebImageSwiftUI
             while !Task.isCancelled {
                 guard let hasError = await nativeViewModel.pollError() else { break }
                 if hasError {
-                    self.state = .error(NSError(domain: "SwiftViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "An error occurred"]))
+                    self.state = .error(NSError(
+                        domain: "com.giphrs.app",
+                        code: 1001,
+                        userInfo: [
+                            NSLocalizedDescriptionKey: "Failed to load GIFs",
+                            NSLocalizedRecoverySuggestionErrorKey: "Please check your internet connection and try again."
+                        ]
+                    ))
                 }
             }
         }

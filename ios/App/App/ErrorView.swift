@@ -24,3 +24,19 @@ struct ErrorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    ErrorView(
+        error: NSError(
+            domain: "com.giphrs.app",
+            code: 1001,
+            userInfo: [
+                NSLocalizedDescriptionKey: "Failed to load GIFs",
+                NSLocalizedRecoverySuggestionErrorKey: "Please check your internet connection and try again."
+            ]
+        ),
+        onRetry: { }
+    )
+}

@@ -86,3 +86,24 @@ struct GifGridView: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    let mockGifs = [
+        PreviewWebP(id: "1", altText: "Cat GIF", url: "https://media.giphy.com/media/placeholder1/giphy.gif", aspectRatio: 1.0),
+        PreviewWebP(id: "2", altText: "Dog GIF", url: "https://media.giphy.com/media/placeholder2/giphy.gif", aspectRatio: 1.5),
+        PreviewWebP(id: "3", altText: "Bird GIF", url: "https://media.giphy.com/media/placeholder3/giphy.gif", aspectRatio: 0.75),
+        PreviewWebP(id: "4", altText: "Fish GIF", url: "https://media.giphy.com/media/placeholder4/giphy.gif", aspectRatio: 1.2),
+        PreviewWebP(id: "5", altText: "Rabbit GIF", url: "https://media.giphy.com/media/placeholder5/giphy.gif", aspectRatio: 0.9),
+        PreviewWebP(id: "6", altText: "Turtle GIF", url: "https://media.giphy.com/media/placeholder6/giphy.gif", aspectRatio: 1.3),
+    ]
+    
+    GifGridView(
+        gifs: mockGifs,
+        columnWidth: 200,
+        spacing: 12,
+        onSeen: { _ in },
+        onRequestNextPage: { }
+    )
+}
