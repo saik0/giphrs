@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import uniffi.giphrs.GiphRsErrorState
 import uniffi.giphrs.RustViewModel
 
 class KotlinViewModel private constructor(private val nativeViewModel: RustViewModel) :
@@ -17,7 +18,7 @@ class KotlinViewModel private constructor(private val nativeViewModel: RustViewM
         signalAsStateFlow(nativeViewModel.isLoading()) { nativeViewModel.pollLoading() }
 
     val hasErrorFlow =
-        signalAsStateFlow(nativeViewModel.hasError()) { nativeViewModel.pollError() }
+        signalAsStateFlow(nativeViewModel.hasError()) { nativeViewModel.pollError()?.let { it is GiphRsErrorState.Error } }
 
     init {
         refresh()

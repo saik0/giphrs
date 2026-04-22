@@ -1,5 +1,11 @@
 use thiserror::Error;
 
+#[derive(Debug, Clone, uniffi::Enum)]
+pub enum GiphRsErrorState {
+    NoError,
+    Error(GiphRsError),
+}
+
 #[derive(Debug, Clone, Error, uniffi::Error)]
 #[uniffi(flat_error)]
 pub enum GiphRsError {

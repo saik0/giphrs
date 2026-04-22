@@ -79,8 +79,10 @@ import SDWebImageSwiftUI
         // Poll for error state
         errorPollingTask = Task {
             while !Task.isCancelled {
-                guard let error = await nativeViewModel.pollError() else { break }
-                self.state = .error(error)
+                guard let errorState = await nativeViewModel.pollError() else { break }
+                if case .error(let error) = errorState {
+                    self.state = .error(error)
+                }
             }
         }
     }

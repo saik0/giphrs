@@ -2,7 +2,7 @@ use crate::api_client::ApiClient;
 use crate::api_model::{Gif, GifListResponse, Image, Images};
 use crate::broadcast_signal::BroadcastSignal;
 use crate::domain_model::PreviewWebP;
-use crate::error::GiphRsError;
+use crate::error::{GiphRsError, GiphRsErrorState};
 use crate::offset_paginator::OffsetPager;
 use futures_signals::signal::SignalExt;
 use itertools::Itertools;
@@ -17,7 +17,7 @@ pub struct RustViewModel {
     paginator: OffsetPager<Gif, GifListResponse>,
     previews: BroadcastSignal<Previews>,
     loading: BroadcastSignal<bool>,
-    error: BroadcastSignal<Option<GiphRsError>>,
+    error: BroadcastSignal<GiphRsErrorState>,
 }
 
 #[uniffi::export]
@@ -32,8 +32,12 @@ impl RustViewModel {
 
         let loading = BroadcastSignal::new(paginator.is_loading_signal());
 
-        let error = BroadcastSignal::new(paginator.error_signal().map(|opt_err| opt_err.clone()));
-
+        let error = BroadcastSignal::new(
+            paginator.error_signal().map(|opt_err| match opt_err {
+                Some(e) => GiphRsErrorState::Error(e.clone()),
+                None => GiphRsErrorState::NoError,
+            })
+        );
         let vm = RustViewModel {
             api_client,
             paginator,
@@ -53,8 +57,12 @@ impl RustViewModel {
         self.paginator.is_loading()
     }
 
+    pub fn error(&self) -> Option<GiphRsError> {
+        self.paginator.error()
+    }
+
     pub fn has_error(&self) -> bool {
-        self.paginator.error().is_some()
+        self.error().is_some()
     }
 
     pub async fn poll_items(&self) -> Option<Vec<PreviewWebP>> {
@@ -65,8 +73,8 @@ impl RustViewModel {
         self.loading.recv().await
     }
 
-    pub async fn poll_error(&self) -> Option<GiphRsError> {
-        self.error.recv().await.flatten()
+    pub async fn poll_error(&self) -> Option<GiphRsErrorState> {
+        self.error.recv().await
     }
 
     pub async fn refresh(&self) {
