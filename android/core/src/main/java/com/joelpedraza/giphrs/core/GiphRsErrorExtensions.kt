@@ -1,42 +1,42 @@
 package com.joelpedraza.giphrs.core
 
-import uniffi.giphrs.GiphRsError
+import uniffi.giphrs.GiphRsException
 import java.io.IOException
 
 /**
- * Converts a GiphRsError to a standard Kotlin Exception
+ * Converts a GiphRsException to a standard Kotlin Exception
  */
-fun GiphRsError.toException(): Exception {
+fun GiphRsException.toException(): Exception {
     return when (this) {
-        is GiphRsError.NetworkError ->
+        is GiphRsException.NetworkException ->
             IOException("Network Error: ${this.message}")
 
-        is GiphRsError.ParseError ->
-            IllegalStateException("Parse Error: ${this.details}")
+        is GiphRsException.ParseException ->
+            IllegalStateException("Parse Error: ${this.message}")
 
-        is GiphRsError.ApiError ->
-            Exception("API Error ${this.code}: ${this.message}")
+        is GiphRsException.ApiException ->
+            Exception("API Error: ${this.message}")
 
-        is GiphRsError.Unknown ->
+        is GiphRsException.Unknown ->
             Exception("Unknown Error: ${this.message}")
     }
 }
 
 /**
- * Gets a user-friendly error message from a GiphRsError
+ * Gets a user-friendly error message from a GiphRsException
  */
-fun GiphRsError.getUserMessage(): String {
+fun GiphRsException.getUserMessage(): String {
     return when (this) {
-        is GiphRsError.NetworkError ->
+        is GiphRsException.NetworkException ->
             "Network error. Please check your connection and try again."
 
-        is GiphRsError.ParseError ->
+        is GiphRsException.ParseException ->
             "Failed to load GIFs. Please try again later."
 
-        is GiphRsError.ApiError ->
+        is GiphRsException.ApiException ->
             "The server returned an error. Please try again later."
 
-        is GiphRsError.Unknown ->
+        is GiphRsException.Unknown ->
             "An unexpected error occurred. Please try again."
     }
 }
