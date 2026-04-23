@@ -79,16 +79,9 @@ import SDWebImageSwiftUI
         // Poll for error state
         errorPollingTask = Task {
             while !Task.isCancelled {
-                guard let hasError = await nativeViewModel.pollError() else { break }
-                if hasError {
-                    self.state = .error(NSError(
-                        domain: "com.giphrs.app",
-                        code: 1001,
-                        userInfo: [
-                            NSLocalizedDescriptionKey: "Failed to load GIFs",
-                            NSLocalizedRecoverySuggestionErrorKey: "Please check your internet connection and try again."
-                        ]
-                    ))
+                guard let errorState = await nativeViewModel.pollError() else { break }
+                if case .error(let error) = errorState {
+                    self.state = .error(error)
                 }
             }
         }

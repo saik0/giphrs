@@ -1,4 +1,5 @@
 use crate::api_model::{Gif, GifListResponse};
+use crate::error::GiphRsError;
 use futures_signals::signal::{Mutable, MutableSignal, MutableSignalCloned};
 use log::{debug, error};
 use std::future::Future;
@@ -25,7 +26,7 @@ where
     P: Page<T>,
 {
     is_loading: Mutable<bool>,
-    error: Mutable<bool>,
+    error: Mutable<Option<GiphRsError>>,
     items: Mutable<Vec<T>>,
     offset: Mutable<u32>,
     phantom_data: PhantomData<P>,
@@ -39,7 +40,7 @@ where
     pub fn new() -> Self {
         OffsetPager {
             is_loading: Mutable::new(false),
-            error: Mutable::new(false),
+            error: Mutable::new(None),
             items: Mutable::new(Vec::new()),
             offset: Mutable::new(0),
             phantom_data: PhantomData,
@@ -67,11 +68,12 @@ where
                 let next_offset = value.next_offset();
                 self.items.set(value.into_items());
                 self.offset.set(next_offset);
-                self.error.set_if(false, |had_error, _| *had_error);
+                self.error.set_if(None, |had_error, _| had_error.is_some());
             }
-            Err(error) => {
-                error!("an error ocurred while (re)loading {:?}", error);
-                self.error.set_if(true, |had_error, _| !*had_error);
+            Err(err) => {
+                error!("an error occurred while (re)loading {:?}", err);
+                let giphr_error = GiphRsError::from(err);
+                self.error.set_if(Some(giphr_error.clone()), |had_error, _| had_error.is_none());
                 self.items.set(vec![]);
             }
         }
@@ -84,7 +86,7 @@ where
         F: Fn(Offset) -> G,
         G: Future<Output = reqwest::Result<P>>,
     {
-        if !ignore_error && self.error.get() {
+        if !ignore_error && self.error.get_cloned().is_some() {
             debug!("Refusing next page load while in error state");
             return;
         }
@@ -106,11 +108,12 @@ where
                 let next_offset = value.next_offset();
                 self.items.lock_mut().extend(value.into_items());
                 self.offset.set(next_offset);
-                self.error.set_if(false, |had_error, _| *had_error);
+                self.error.set_if(None, |had_error, _| had_error.is_some());
             }
-            Err(error) => {
-                error!("an error ocurred while paging {:?}", error);
-                self.error.set_if(true, |had_error, _| !*had_error);
+            Err(err) => {
+                error!("an error occurred while paging {:?}", err);
+                let giphr_error = GiphRsError::from(err);
+                self.error.set_if(Some(giphr_error.clone()), |had_error, _| had_error.is_none());
             }
         }
 
@@ -131,10 +134,10 @@ where
         self.is_loading.signal()
     }
 
-    pub fn error(&self) -> bool {
-        self.error.get()
+    pub fn error(&self) -> Option<GiphRsError> {
+        self.error.get_cloned()
     }
-    pub fn error_signal(&self) -> MutableSignal<bool> {
-        self.error.signal()
+    pub fn error_signal(&self) -> MutableSignalCloned<Option<GiphRsError>> {
+        self.error.signal_cloned()
     }
 }
